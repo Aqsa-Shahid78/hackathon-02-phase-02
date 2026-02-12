@@ -1,8 +1,97 @@
-# Claude Code Rules
+﻿# Claude Code Rules
 
 This file is generated during init for the selected agent.
 
 You are an expert AI assistant specializing in Spec-Driven Development (SDD). Your primary goal is to work with the architext to build products.
+
+---
+
+## Project: Todo Full-Stack Web Application (Phase II)
+
+**Objective:** Transform a console-based Todo app into a modern multi-user web application with persistent storage using Claude Code and Spec-Kit Plus.
+
+### Requirements
+- Implement all 5 Basic Level features as a web application
+- Create RESTful API endpoints
+- Build responsive frontend interface
+- Store data in Neon Serverless PostgreSQL database
+- Authentication: User signup/signin using Better Auth
+
+### Technology Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Frontend | Next.js 16+ (App Router) |
+| Backend | Python FastAPI |
+| ORM | SQLModel |
+| Database | Neon Serverless PostgreSQL |
+| Authentication | Better Auth |
+| Spec-Driven | Claude Code + Spec-Kit Plus |
+
+---
+
+## Agent Delegation Rules
+
+You MUST delegate tasks to the correct specialized agent based on the domain. Do NOT perform work that belongs to an agent yourself — launch the agent via the Task tool.
+
+### 1. Auth Agent (`auth-flow-handler`) — Authentication
+**Use for:** All authentication and authorization work.
+- User signup/signin flows using Better Auth
+- Password hashing and secure credential storage
+- JWT token management (generation, validation, refresh, revocation)
+- Session management and cookie configuration
+- Authentication middleware and route protection
+- Input validation for auth forms (email, password strength)
+- Security hardening (rate limiting, CSRF, secure headers)
+- Password reset and email verification flows
+
+**Trigger keywords:** signup, signin, login, logout, auth, session, token, password, Better Auth, JWT, RBAC, permission
+
+### 2. FastAPI Backend Agent (`fastapi-backend`) — Backend & API Development
+**Use for:** All backend logic, REST API design, and server-side implementation.
+- Designing and implementing RESTful API endpoints (CRUD for todos, users, etc.)
+- Request/response validation with Pydantic and SQLModel schemas
+- Business logic layer (services, repositories)
+- API error handling, middleware, and CORS configuration
+- API versioning and route structure (`/api/v1/...`)
+- Backend testing with pytest
+- FastAPI app setup (`main.py`, config, dependencies)
+- Integration between FastAPI and SQLModel/database layer
+
+**Trigger keywords:** endpoint, route, API, REST, CRUD, FastAPI, Pydantic, middleware, backend, service, repository, request, response
+
+### 3. Frontend Agent (`nextjs-frontend-builder`) — Frontend Development
+**Use for:** All frontend UI, pages, layouts, and client-side logic.
+- Next.js App Router pages, layouts, and routing structure
+- Responsive UI components (todo list, forms, dashboard, navigation)
+- Server Components and Client Components architecture
+- Data fetching patterns (server-side fetch, SWR, React Query)
+- Form handling and client-side validation
+- Tailwind CSS styling and responsive design
+- Loading states, error boundaries, and not-found pages
+- Authentication UI (login/signup forms, protected routes)
+
+**Trigger keywords:** page, component, layout, UI, form, frontend, Next.js, Tailwind, responsive, client, design
+
+### 4. DB Agent (`neon-database-ops`) — Database Design & Operations
+**Use for:** All database schema design, migrations, queries, and Neon-specific operations.
+- Database schema design (users, todos, sessions tables)
+- SQL migrations (up/down scripts, reversible)
+- Index design and query optimization
+- Neon branching for dev/staging/production
+- Connection pooling configuration
+- Data modeling and relationship design
+- SQLModel model definitions (coordinate with Backend Agent)
+
+**Trigger keywords:** schema, table, migration, SQL, index, query, database, Neon, column, constraint, relationship
+
+### Agent Coordination Rules
+- **Auth + Backend overlap:** Auth Agent owns the auth logic (Better Auth config, password hashing, token management). Backend Agent owns the API endpoint wiring and middleware integration. When both are needed, launch Auth Agent first for the auth logic, then Backend Agent to wire it into FastAPI routes.
+- **DB + Backend overlap:** DB Agent owns schema design and migrations. Backend Agent owns SQLModel models and repository code. When both are needed, launch DB Agent first for schema, then Backend Agent for the application layer.
+- **Frontend + Auth overlap:** Frontend Agent builds the login/signup UI forms. Auth Agent provides the auth API contracts the frontend calls. Launch them in parallel when possible.
+- **Multi-agent tasks:** For features that span multiple layers (e.g., "add todo CRUD"), break the work into agent-scoped subtasks and coordinate sequentially: DB schema → Backend API → Frontend UI.
+
+---
 
 ## Task context
 
@@ -198,6 +287,7 @@ Wait for consent; never auto-create ADRs. Group related decisions (stacks, authe
 
 ## Basic Project Structure
 
+### SDD Artifacts
 - `.specify/memory/constitution.md` — Project principles
 - `specs/<feature>/spec.md` — Feature requirements
 - `specs/<feature>/plan.md` — Architecture decisions
@@ -205,6 +295,38 @@ Wait for consent; never auto-create ADRs. Group related decisions (stacks, authe
 - `history/prompts/` — Prompt History Records
 - `history/adr/` — Architecture Decision Records
 - `.specify/` — SpecKit Plus templates and scripts
+
+### Application Code (Target Structure)
+```
+frontend/                  # Next.js 16+ App Router
+├── app/
+│   ├── layout.tsx         # Root layout
+│   ├── page.tsx           # Landing page
+│   ├── (auth)/            # Auth route group
+│   │   ├── login/
+│   │   └── signup/
+│   └── (dashboard)/       # Protected route group
+│       ├── layout.tsx
+│       └── todos/
+├── components/            # Reusable UI components
+├── lib/                   # Utilities, API client
+└── package.json
+
+backend/                   # Python FastAPI
+├── app/
+│   ├── main.py            # FastAPI app entry
+│   ├── config.py          # Settings (pydantic-settings)
+│   ├── api/v1/            # API routes
+│   │   └── endpoints/     # Resource endpoints (todos, auth)
+│   ├── models/            # SQLModel models
+│   ├── schemas/           # Pydantic request/response schemas
+│   ├── services/          # Business logic
+│   ├── repositories/      # Database access layer
+│   └── core/              # Security, exceptions, middleware
+├── migrations/            # Database migrations
+├── tests/                 # pytest test suite
+└── requirements.txt
+```
 
 ## Code Standards
 See `.specify/memory/constitution.md` for code quality, testing, performance, security, and architecture principles.
