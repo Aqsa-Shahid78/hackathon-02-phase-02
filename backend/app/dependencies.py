@@ -1,4 +1,5 @@
 import uuid
+from collections.abc import AsyncGenerator
 
 from fastapi import Cookie, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -10,7 +11,7 @@ from app.models import User
 from app.security import decode_access_token
 
 
-async def get_db() -> AsyncSession:
+async def get_db() -> AsyncGenerator[AsyncSession, None]:
     async with async_session() as session:
         yield session
 
