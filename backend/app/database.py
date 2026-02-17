@@ -5,6 +5,7 @@ from app.config import settings
 
 def _ensure_async_url(url: str) -> str:
     """Convert common PostgreSQL URL schemes to asyncpg-compatible format."""
+    url = url.strip().strip("'\"")
     if url.startswith("postgres://"):
         return url.replace("postgres://", "postgresql+asyncpg://", 1)
     if url.startswith("postgresql://"):
