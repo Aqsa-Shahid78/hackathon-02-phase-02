@@ -13,6 +13,6 @@ def _ensure_async_url(url: str) -> str:
     return url
 
 
-engine = create_async_engine(_ensure_async_url(settings.DATABASE_URL), echo=False, future=True)
+engine = create_async_engine(_ensure_async_url(settings.get_database_url()), echo=False, future=True)
 
 async_session = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
