@@ -24,13 +24,15 @@ def create_access_token(subject: str, expires_delta: timedelta | None = None) ->
             minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
         )
     to_encode = {"sub": subject, "exp": expire}
-    return jwt.encode(to_encode, settings.JWT_SECRET, algorithm=settings.JWT_ALGORITHM)
+    algorithm = settings.JWT_ALGORITHM.strip()
+    return jwt.encode(to_encode, settings.JWT_SECRET.strip(), algorithm=algorithm)
 
 
 def decode_access_token(token: str) -> dict | None:
     try:
+        algorithm = settings.JWT_ALGORITHM.strip()
         payload = jwt.decode(
-            token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM]
+            token, settings.JWT_SECRET.strip(), algorithms=[algorithm]
         )
         return payload
     except JWTError:

@@ -18,8 +18,8 @@ def _set_auth_cookie(response: Response, token: str) -> None:
         key="access_token",
         value=token,
         httponly=True,
-        secure=False,  # Set to True in production with HTTPS
-        samesite="lax",
+        secure=True,
+        samesite="none",
         max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
     )
 
@@ -96,5 +96,5 @@ async def signin(data: SigninRequest, response: Response, db: AsyncSession = Dep
     },
 )
 async def signout(response: Response, current_user: User = Depends(get_current_user)):
-    response.delete_cookie(key="access_token")
+    response.delete_cookie(key="access_token", secure=True, samesite="none")
     return Response(status_code=204)
